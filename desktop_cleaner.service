@@ -1,0 +1,9 @@
+[Unit]
+Description=Desktop Cleaner Service
+
+[Service]
+ExecStart=/usr/local/bin/desktop-cleaner --dry-run --interval 15 --home-dir /home/nicolas/workspace/desktop-cleaner
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

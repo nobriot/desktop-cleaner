@@ -17,4 +17,7 @@ Cargo.lock
 /target
 
 # Built by the Makefile
-desktop_cleaner.service
+desktop-cleaner.service
+
+# Fake directory for testing
+/Desktop

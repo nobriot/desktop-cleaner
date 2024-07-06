@@ -1,9 +1,9 @@
 # Define variables
-SERVICE_NAME = desktop_cleaner
-BINARY_NAME = desktop_cleaner
+SERVICE_NAME = desktop-cleaner
+BINARY_NAME = desktop-cleaner
 TARGET_DIR = target/release
-MACOS_PLIST_FILE = com.example.desktop_cleaner.plist
-LINUX_SERVICE_FILE = desktop_cleaner.service
+MACOS_PLIST_FILE = com.example.desktop-cleaner.plist
+LINUX_SERVICE_FILE = desktop-cleaner.service
 
 # Default target
 all: build
@@ -25,7 +25,7 @@ $(MACOS_PLIST_FILE):
 	@echo "<plist version=\"1.0\">" >> $(MACOS_PLIST_FILE)
 	@echo "<dict>" >> $(MACOS_PLIST_FILE)
 	@echo "    <key>Label</key>" >> $(MACOS_PLIST_FILE)
-	@echo "    <string>com.example.desktop_cleaner</string>" >> $(MACOS_PLIST_FILE)
+	@echo "    <string>com.example.desktop-cleaner</string>" >> $(MACOS_PLIST_FILE)
 	@echo "    <key>ProgramArguments</key>" >> $(MACOS_PLIST_FILE)
 	@echo "    <array>" >> $(MACOS_PLIST_FILE)
 	@echo "        <string>/usr/local/bin/$(BINARY_NAME)</string>" >> $(MACOS_PLIST_FILE)
@@ -35,9 +35,9 @@ $(MACOS_PLIST_FILE):
 	@echo "    <key>KeepAlive</key>" >> $(MACOS_PLIST_FILE)
 	@echo "    <true/>" >> $(MACOS_PLIST_FILE)
 	@echo "    <key>StandardErrorPath</key>" >> $(MACOS_PLIST_FILE)
-	@echo "    <string>/tmp/desktop_cleaner.err</string>" >> $(MACOS_PLIST_FILE)
+	@echo "    <string>/tmp/desktop-cleaner.err</string>" >> $(MACOS_PLIST_FILE)
 	@echo "    <key>StandardOutPath</key>" >> $(MACOS_PLIST_FILE)
-	@echo "    <string>/tmp/desktop_cleaner.out</string>" >> $(MACOS_PLIST_FILE)
+	@echo "    <string>/tmp/desktop-cleaner.out</string>" >> $(MACOS_PLIST_FILE)
 	@echo "</dict>" >> $(MACOS_PLIST_FILE)
 	@echo "</plist>" >> $(MACOS_PLIST_FILE)
 
@@ -47,7 +47,7 @@ $(LINUX_SERVICE_FILE):
 	@echo "Description=Desktop Cleaner Service" >> $(LINUX_SERVICE_FILE)
 	@echo "" >> $(LINUX_SERVICE_FILE)
 	@echo "[Service]" >> $(LINUX_SERVICE_FILE)
-	@echo "ExecStart=/usr/local/bin/$(BINARY_NAME)" >> $(LINUX_SERVICE_FILE)
+	@echo "ExecStart=/usr/local/bin/$(BINARY_NAME)" --dry-run --interval 15 >> $(LINUX_SERVICE_FILE)
 	@echo "Restart=always" >> $(LINUX_SERVICE_FILE)
 	@echo "User=$(USER)" >> $(LINUX_SERVICE_FILE)
 	@echo "" >> $(LINUX_SERVICE_FILE)
