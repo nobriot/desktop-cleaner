@@ -61,14 +61,14 @@ $(WINDOWS_SERVICE_NAME):
 # Install the binary and service file
 install: build
 ifeq ($(UNAME_S),Darwin)
-	sudo cp $(TARGET_DIR)/$(BINARY_NAME) /usr/local/bin/$(BINARY_NAME)
+	sudo cp -f $(TARGET_DIR)/$(BINARY_NAME) /usr/local/bin/$(BINARY_NAME)
 	make $(MACOS_PLIST_FILE)
 	cp $(MACOS_PLIST_FILE) ~/Library/LaunchAgents/
 	sudo launchctl load ~/Library/LaunchAgents/$(MACOS_PLIST_FILE)
 else ifeq ($(UNAME_S),Linux)
-	sudo cp $(TARGET_DIR)/$(BINARY_NAME) /usr/local/bin/$(BINARY_NAME)
+	sudo cp -f $(TARGET_DIR)/$(BINARY_NAME) /usr/local/bin/$(BINARY_NAME)
 	make $(LINUX_SERVICE_FILE)
-	sudo cp $(LINUX_SERVICE_FILE) /etc/systemd/system/
+	sudo cp -f $(LINUX_SERVICE_FILE) /etc/systemd/system/
 	sudo systemctl enable $(LINUX_SERVICE_FILE)
 	sudo systemctl start $(LINUX_SERVICE_FILE)
 else ifeq ($(UNAME_S),Windows)

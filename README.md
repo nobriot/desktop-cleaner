@@ -27,7 +27,7 @@ make install
 
 It is possible to un-install with 
 
-```
+```console
 make uninstall
 ```
 
