@@ -18,6 +18,7 @@ Cargo.lock
 
 # Built by the Makefile
 desktop-cleaner.service
+com.example.desktop-cleaner.plist
 
 # Fake directory for testing
 /Desktop

@@ -64,7 +64,7 @@ ifeq ($(UNAME_S),Darwin)
 	sudo cp -f $(TARGET_DIR)/$(BINARY_NAME) /usr/local/bin/$(BINARY_NAME)
 	make $(MACOS_PLIST_FILE)
 	cp $(MACOS_PLIST_FILE) ~/Library/LaunchAgents/
-	sudo launchctl load ~/Library/LaunchAgents/$(MACOS_PLIST_FILE)
+	launchctl load ~/Library/LaunchAgents/$(MACOS_PLIST_FILE)
 else ifeq ($(UNAME_S),Linux)
 	sudo cp -f $(TARGET_DIR)/$(BINARY_NAME) /usr/local/bin/$(BINARY_NAME)
 	make $(LINUX_SERVICE_FILE)
@@ -79,7 +79,7 @@ endif
 # Uninstall the service
 uninstall:
 ifeq ($(UNAME_S),Darwin)
-	sudo launchctl unload ~/Library/LaunchAgents/$(MACOS_PLIST_FILE)
+	launchctl unload ~/Library/LaunchAgents/$(MACOS_PLIST_FILE)
 	sudo rm -f ~/Library/LaunchAgents/$(MACOS_PLIST_FILE)
 	sudo rm -f /usr/local/bin/$(BINARY_NAME)
 else ifeq ($(UNAME_S),Linux)
