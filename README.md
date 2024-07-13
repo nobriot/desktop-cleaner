@@ -9,12 +9,33 @@ Is to just delete everything automatically 😀
 
 ## Introducing to you .... the Desktop cleaner
 
-You'll need [cargo](https://www.rust-lang.org/tools/install) to build.
+This program puts the files from the desktop to the trash-bin periodically.
+It is possible to recover your files from the trash bin, so it's not too destructive.
 
-Then you can run 
+It will also spare files with the following extensions [`desktop`, `exe`]. 
+You can modify the program to change this list.
+
+Symlinks will also survive and be kept.
+
+⚠️ This is totally untested on Windows. ⚠️
+
+## Get started
+
+You'll need [cargo](https://www.rust-lang.org/tools/install) to build.
+Then you can run, sit back and relax 🙂
 
 ```console
 cargo build --release && ./target/release/desktop-cleaner
+```
+
+The Makefile will allow you to do this quicker: 
+
+```console
+make run
+```
+
+```console
+make dry-run
 ```
 
 ### Install

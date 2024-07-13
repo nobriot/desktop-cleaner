@@ -14,9 +14,23 @@ ifeq ($(OS),Windows_NT)
     UNAME_S := Windows
 endif
 
+# Determine what will be the executable name:
+EXE_FILE := $(TARGET_DIR)/$(BINARY_NAME)
+ifeq ($(UNAME_S),Windows)
+    EXE_FILE := $(TARGET_DIR)/$(BINARY_NAME)
+endif
+
 # Build the binary
 build:
 	cargo build --release
+
+# run
+run: build
+	$(EXE_FILE)
+
+# run
+dry-run: build
+	$(EXE_FILE) --dry-run
 
 # Create the plist file for macOS
 $(MACOS_PLIST_FILE):
@@ -47,7 +61,7 @@ $(LINUX_SERVICE_FILE):
 	@echo "Description=Desktop Cleaner Service" >> $(LINUX_SERVICE_FILE)
 	@echo "" >> $(LINUX_SERVICE_FILE)
 	@echo "[Service]" >> $(LINUX_SERVICE_FILE)
-	@echo "ExecStart=/usr/local/bin/$(BINARY_NAME)" --dry-run --interval 15 >> $(LINUX_SERVICE_FILE)
+	@echo "ExecStart=/usr/local/bin/$(BINARY_NAME)" --interval 600 >> $(LINUX_SERVICE_FILE)
 	@echo "Restart=always" >> $(LINUX_SERVICE_FILE)
 	@echo "User=$(USER)" >> $(LINUX_SERVICE_FILE)
 	@echo "" >> $(LINUX_SERVICE_FILE)
@@ -100,4 +114,4 @@ clean:
 	sudo rm -f /usr/local/bin/$(BINARY_NAME).exe
 	sudo rm -f /usr/local/bin/$(BINARY_NAME)
 
-.PHONY: all build install uninstall clean
+.PHONY: all build run dry-run install uninstall clean
