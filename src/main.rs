@@ -34,7 +34,7 @@ fn main() -> ExitCode {
     let args = Args::parse();
 
     // Extensions that we will not delete
-    let safe_extensions = vec!["desktop", "exe"];
+    let safe_extensions = vec!["desktop", "exe", "lnk", "url"];
 
     // Main loop - never stops
     loop {
@@ -46,7 +46,7 @@ fn main() -> ExitCode {
         thread::sleep(Duration::from_secs(args.interval));
     }
 
-    std::process::ExitCode::SUCCESS
+    // std::process::ExitCode::SUCCESS
 }
 
 /// Cleans up the Desktop directory by moving files to the trash bin based
@@ -61,7 +61,7 @@ fn main() -> ExitCode {
 ///
 /// ### Example
 /// ```
-/// let safe_extensions = ["desktop", "exe"];
+/// let safe_extensions = ["desktop", "exe", "lnk", "url"];
 /// let args = Args { interval: 600, home_dir: None, dry_run: false };
 /// let result = clean_desktop(&safe_extensions, &args);
 /// ```
@@ -92,18 +92,22 @@ fn clean_desktop(safe_extensions: &[&str], args: &Args) -> Result<(), String> {
         }
 
         let path = file.unwrap().path();
-        if path.is_file() && !is_hidden(&path) && !is_symlink(&path) {
+        if !is_hidden(&path) && !is_symlink(&path) {
             // Check if the file will survive based on its extension.
             let mut delete: bool = true;
-            let file_extension_option = path.extension();
 
-            if let Some(file_extension) = file_extension_option {
-                let file_extension = file_extension.to_str().unwrap_or("").to_lowercase();
+            // Directories just get deleted.
+            if path.is_file() {
+                let file_extension_option = path.extension();
 
-                for extension in safe_extensions {
-                    if file_extension == *extension {
-                        delete = false;
-                        break;
+                if let Some(file_extension) = file_extension_option {
+                    let file_extension = file_extension.to_str().unwrap_or("").to_lowercase();
+
+                    for extension in safe_extensions {
+                        if file_extension == *extension {
+                            delete = false;
+                            break;
+                        }
                     }
                 }
             }
@@ -159,6 +163,7 @@ fn is_hidden(file_path: &PathBuf) -> bool {
                 .to_str()
                 .map_or(false, |name| name.starts_with('.'));
         }
+        false
     }
 
     // Windows: Check file attributes for the hidden attribute
@@ -168,17 +173,12 @@ fn is_hidden(file_path: &PathBuf) -> bool {
         use std::os::windows::ffi::OsStrExt;
 
         let wide_path: Vec<u16> = OsStr::new(file_path).encode_wide().chain(Some(0)).collect();
-
-        unsafe {
-            let attributes = GetFileAttributesW(wide_path.as_ptr());
-            if attributes == u32::MAX {
-                return false;
-            }
-            return (attributes & FILE_ATTRIBUTE_HIDDEN) != 0;
+        let attributes = unsafe { GetFileAttributesW(wide_path.as_ptr()) };
+        if attributes == u32::MAX {
+            return false;
         }
+        (attributes & FILE_ATTRIBUTE_HIDDEN) != 0
     }
-
-    false
 }
 
 /// Checks if the given file path is a symbolic link.

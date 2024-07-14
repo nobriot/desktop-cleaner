@@ -17,8 +17,6 @@ You can modify the program to change this list.
 
 Symlinks will also survive and be kept.
 
-⚠️ This is totally untested on Windows. ⚠️
-
 ## Get started
 
 You'll need [cargo](https://www.rust-lang.org/tools/install) to build.
@@ -28,7 +26,7 @@ Then you can run, sit back and relax 🙂
 cargo build --release && ./target/release/desktop-cleaner
 ```
 
-The Makefile will allow you to do this quicker: 
+For MacOS and Linux, the Makefile will allow you to do this quicker: 
 
 ```console
 make run
@@ -51,6 +49,15 @@ It is possible to un-install with
 ```console
 make uninstall
 ```
+
+For Windows, the easiest is probably to run this in the repo:
+
+```console
+cargo install --path .
+where desktop-cleaner.exe
+```
+
+Then you are on your own! 
 
 ### Options
 

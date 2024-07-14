@@ -14,23 +14,17 @@ ifeq ($(OS),Windows_NT)
     UNAME_S := Windows
 endif
 
-# Determine what will be the executable name:
-EXE_FILE := $(TARGET_DIR)/$(BINARY_NAME)
-ifeq ($(UNAME_S),Windows)
-    EXE_FILE := $(TARGET_DIR)/$(BINARY_NAME)
-endif
-
 # Build the binary
 build:
 	cargo build --release
 
 # run
 run: build
-	$(EXE_FILE)
+	cargo run --release
 
 # run
 dry-run: build
-	$(EXE_FILE) --dry-run
+	cargo run --release -- --dry-run
 
 # Create the plist file for macOS
 $(MACOS_PLIST_FILE):
@@ -68,10 +62,6 @@ $(LINUX_SERVICE_FILE):
 	@echo "[Install]" >> $(LINUX_SERVICE_FILE)
 	@echo "WantedBy=multi-user.target" >> $(LINUX_SERVICE_FILE)
 
-# Create the service file for Windows (using PowerShell)
-$(WINDOWS_SERVICE_NAME):
-	@powershell -Command "New-Service -Name '$(WINDOWS_SERVICE_NAME)' -BinaryPathName '$(CURDIR)\\$(TARGET_DIR)\\$(BINARY_NAME).exe' -DisplayName 'Desktop Cleaner Service' -Description 'A service that moves files from the Desktop to the trash' -StartupType Automatic"
-
 # Install the binary and service file
 install: build
 ifeq ($(UNAME_S),Darwin)
@@ -86,8 +76,7 @@ else ifeq ($(UNAME_S),Linux)
 	sudo systemctl enable $(LINUX_SERVICE_FILE)
 	sudo systemctl start $(LINUX_SERVICE_FILE)
 else ifeq ($(UNAME_S),Windows)
-	cp $(TARGET_DIR)/$(BINARY_NAME).exe /usr/local/bin/$(BINARY_NAME).exe
-	make $(WINDOWS_SERVICE_NAME)
+	$(error Not supported for Windows, check the README.md)
 endif
 
 # Uninstall the service
@@ -102,8 +91,7 @@ else ifeq ($(UNAME_S),Linux)
 	sudo rm -f /etc/systemd/system/$(LINUX_SERVICE_FILE)
 	sudo rm -f /usr/local/bin/$(BINARY_NAME)
 else ifeq ($(UNAME_S),Windows)
-	@powershell -Command "Remove-Service -Name '$(WINDOWS_SERVICE_NAME)'"
-	sudo rm -f /usr/local/bin/$(BINARY_NAME).exe
+	$(error Not supported for Windows, check the README.md)
 endif
 
 # Clean the project
@@ -111,7 +99,5 @@ clean:
 	cargo clean
 	rm -f $(MACOS_PLIST_FILE)
 	rm -f $(LINUX_SERVICE_FILE)
-	sudo rm -f /usr/local/bin/$(BINARY_NAME).exe
-	sudo rm -f /usr/local/bin/$(BINARY_NAME)
 
 .PHONY: all build run dry-run install uninstall clean
