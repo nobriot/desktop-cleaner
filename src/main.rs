@@ -1,8 +1,7 @@
 use clap::Parser;
 use dirs::home_dir;
 use std::process::ExitCode;
-use std::{fs, path::PathBuf, thread, time::Duration};
-use trash;
+use std::{fs, path::Path, path::PathBuf, thread, time::Duration};
 
 #[cfg(windows)]
 use winapi::um::fileapi::GetFileAttributesW;
@@ -25,6 +24,10 @@ struct Args {
     /// Dry-run mode, does not actually delete files
     #[arg(short, long)]
     dry_run: bool,
+
+    /// List of safe-extensions, which won't be removed
+    #[arg(short, long)]
+    safe: Vec<String>,
 }
 
 /// Main function that continuously cleans up the Desktop directory by moving
@@ -33,12 +36,9 @@ fn main() -> ExitCode {
     // Parse our arguments
     let args = Args::parse();
 
-    // Extensions that we will not delete
-    let safe_extensions = vec!["desktop", "exe", "lnk", "url"];
-
     // Main loop - never stops
     loop {
-        if let Err(message) = clean_desktop(&safe_extensions, &args) {
+        if let Err(message) = clean_desktop(&args) {
             eprintln!("Error: {message}");
         }
         // Sleep a little bit before the next sweep.
@@ -61,12 +61,11 @@ fn main() -> ExitCode {
 ///
 /// ### Example
 /// ```
-/// let safe_extensions = ["desktop", "exe", "lnk", "url"];
-/// let args = Args { interval: 600, home_dir: None, dry_run: false };
-/// let result = clean_desktop(&safe_extensions, &args);
+/// let args = Args { interval: 600, home_dir: None, dry_run: false, safe:["desktop", "exe", "lnk", "url"] };
+/// let result = clean_desktop(&args);
 /// ```
 ///
-fn clean_desktop(safe_extensions: &[&str], args: &Args) -> Result<(), String> {
+fn clean_desktop(args: &Args) -> Result<(), String> {
     // Find the Desktop, if any.
     let mut desktop_directory = match &args.home_dir {
         Some(dir) => PathBuf::from(dir),
@@ -100,14 +99,10 @@ fn clean_desktop(safe_extensions: &[&str], args: &Args) -> Result<(), String> {
             if path.is_file() {
                 let file_extension_option = path.extension();
 
-                if let Some(file_extension) = file_extension_option {
-                    let file_extension = file_extension.to_str().unwrap_or("").to_lowercase();
-
-                    for extension in safe_extensions {
-                        if file_extension == *extension {
-                            delete = false;
-                            break;
-                        }
+                for extension in &args.safe {
+                    if file_extension == *extension {
+                        delete = false;
+                        break;
                     }
                 }
             }
@@ -115,12 +110,10 @@ fn clean_desktop(safe_extensions: &[&str], args: &Args) -> Result<(), String> {
             if delete {
                 if args.dry_run {
                     println!("Would move {:?} to trash", path);
+                } else if let Err(e) = trash::delete(&path) {
+                    eprintln!("Failed to move file to trash: {}", e);
                 } else {
-                    if let Err(e) = trash::delete(&path) {
-                        eprintln!("Failed to move file to trash: {}", e);
-                    } else {
-                        println!("Moved {:?} to trash", path);
-                    }
+                    println!("Moved {:?} to trash", path);
                 }
             }
         }
@@ -147,14 +140,15 @@ fn clean_desktop(safe_extensions: &[&str], args: &Args) -> Result<(), String> {
 /// - Unix: Checks if the file name starts with a dot.
 /// - Windows: Uses WinAPI to check file attributes for hidden status.
 ///
-/// # Examples
+/// # Example
 /// ```
-/// use std::path::PathBuf;
-/// let file_path = PathBuf::from("/path/to/hidden/file.txt");
+/// use std::path::Path;
+/// let file_path = Path::from("/path/to/hidden/file.txt");
 /// let is_hidden = is_hidden(&file_path);
 /// assert_eq!(is_hidden, true);
+/// ```
 ///
-fn is_hidden(file_path: &PathBuf) -> bool {
+fn is_hidden(file_path: &Path) -> bool {
     // Unix-like systems: Check if the file name starts with a dot
     #[cfg(unix)]
     {

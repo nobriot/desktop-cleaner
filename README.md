@@ -61,6 +61,12 @@ Then you are on your own!
 
 ### Options
 
+Just check your options with `--help`
+
+```console
+desktop-cleaner --help
+```
+
 You can specify the interval at which the desktop cleaning runs, in seconds,
 using the `--interval` argument. For example, run every 15 seconds:
 
@@ -69,16 +75,23 @@ desktop-cleaner --interval 15
 ```
 
 If you want to specify which directory is the home directory
-(e.g. clean Desktops of other users), you can use `--home-dir`
+(e.g. clean Desktops of other users), you can use `--home-dir` (`-h`) 
 
 ```console
 desktop-cleaner --home-dir $(pwd)
 ```
 
 Files can be recovered from the trash-bin, but if you want to test it you can 
-run with the `--dry-run` option:
+run with the `--dry-run` (`-d`) option:
 
 ```console
 desktop-cleaner --dry-run
+```
+
+If some particular file extensions are allowed to stay on the Desktop, use the 
+`--safe` (`-s`) option:
+
+```console
+desktop-cleaner --safe exe --safe desktop --safe mp4
 ```
 
